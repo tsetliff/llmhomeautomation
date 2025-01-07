@@ -1,0 +1,9 @@
+core/api_cache/
+core/generated/
+core/generated_ai/
+__pycache__/
+*.pyc
+vosk-model-*
+myenv/
+.key
+*.key
