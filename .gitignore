@@ -1,9 +1,26 @@
-core/api_cache/
-core/generated/
-core/generated_ai/
+# Byte-compiled files
 __pycache__/
-*.pyc
-vosk-model-*
-myenv/
+*.py[cod]
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+
+# Virtual environments
+venv/
+.env/
+
+.idea/
+.idea
+
+# Files I'm using for keys
 .key
 *.key
+
+todo.txt
+
+# Data files
+data/
