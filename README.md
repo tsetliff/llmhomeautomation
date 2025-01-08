@@ -1,5 +1,4 @@
-# llmhomeautomation
-LLM Home Automation
+# LLM Home Automation
 
 Requirements (Only thing I've tested it on so far)
 * Ubuntu 24.04.1 LTS installed directly on a Dell Mini PC
