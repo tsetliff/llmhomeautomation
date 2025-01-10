@@ -1,6 +1,7 @@
-sounddevice
-vosk
+google-cloud-texttospeech
 openai
 pyttsx3
-google-cloud-texttospeech
 python-dotenv
+sounddevice
+vosk
+websockets

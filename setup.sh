@@ -56,7 +56,7 @@ fi
 # Install ubuntu packages
 sudo apt update
 sudo apt install -y python3-pip python3-venv zip unzip apt-transport-https ca-certificates gnupg curl \
-     libportaudio2 libportaudiocpp0 portaudio19-dev alsa-utils
+     libportaudio2 libportaudiocpp0 portaudio19-dev alsa-utils supervisor
 
 # Get the directory where the script is located
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
@@ -156,8 +156,8 @@ if [ -z "$VOSK_MODEL" ]; then
 
   # Determine the appropriate model based on memory
   if [ "$TOTAL_MEM_GB" -ge 15 ]; then
-    MODEL="vosk-model-en-us-0.42-gigaspeech"
-    MODEL_URL="https://alphacephei.com/vosk/models/vosk-model-en-us-0.42-gigaspeech.zip"
+    MODEL="vosk-model-en-us-0.22"
+    MODEL_URL="https://alphacephei.com/vosk/models/vosk-model-en-us-0.22.zip"
   else
     MODEL="vosk-model-small-en-us-0.15"
     MODEL_URL="https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip"
@@ -174,8 +174,8 @@ if [ -z "$VOSK_MODEL" ]; then
 else
   echo "VOSK_MODEL is already set in .env with the value: $VOSK_MODEL"
   MODEL="$VOSK_MODEL"
-  if [ "$MODEL" = "vosk-model-en-us-0.42-gigaspeech" ]; then
-    MODEL_URL="https://alphacephei.com/vosk/models/vosk-model-en-us-0.42-gigaspeech.zip"
+  if [ "$MODEL" = "vosk-model-en-us-0.22" ]; then
+    MODEL_URL="https://alphacephei.com/vosk/models/vosk-model-en-us-0.22.zip"
   elif [ "$MODEL" = "vosk-model-small-en-us-0.15" ]; then
     MODEL_URL="https://alphacephei.com/vosk/models/vosk-model-small-en-us-0.15.zip"
   else
@@ -290,5 +290,43 @@ else
   echo "Model directory $MODEL_DIR already exists. Skipping download."
 fi
 
-chmod 700 run.sh
-./run.sh
+# Make sure this is executable before supervisor is set up to run it
+chmod 700 run_module.sh
+
+sudo systemctl start supervisor
+sudo systemctl enable supervisor
+
+SUPERVISOR_DIR="/etc/supervisor/conf.d"
+SOURCE_DIR="./supervisor"
+WORKING_DIR=$(pwd)  # Get the current working directory
+
+# Check if SOURCE_DIR exists
+if [ ! -d "$SOURCE_DIR" ]; then
+  echo "Error: Source directory '$SOURCE_DIR' does not exist."
+  exit 1
+fi
+
+# Ensure Supervisor directory exists
+if [ ! -d "$SUPERVISOR_DIR" ]; then
+  echo "Error: Supervisor directory '$SUPERVISOR_DIR' does not exist."
+  exit 1
+fi
+
+# Process each .conf file in the SOURCE_DIR
+for CONF_FILE in "$SOURCE_DIR"/*.conf; do
+  if [ -f "$CONF_FILE" ]; then
+    # Replace PATH with the actual working directory
+    sudo sed "s|PATH|$WORKING_DIR|g; s|USER|$USER|g" "$CONF_FILE" > "/tmp/$(basename "$CONF_FILE")"
+    sudo mv "/tmp/$(basename "$CONF_FILE")" "$SUPERVISOR_DIR/$(basename "$CONF_FILE")"
+    echo "Copied and updated: $(basename "$CONF_FILE")"
+  else
+    echo "No .conf files found in $SOURCE_DIR"
+  fi
+done
+
+# Reload Supervisor to apply any configuration changes
+sudo systemctl restart supervisor
+sleep 3
+
+echo "Supervisor setup complete!"
+sudo supervisorctl status

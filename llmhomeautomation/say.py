@@ -8,6 +8,10 @@ class Say:
         self.client = texttospeech.TextToSpeechClient()
 
     def say(self, text: str):
+
+        # Prevent sending a book to google synthesis
+        text = text[:200]
+
         print("Saying:" + text)
         input_text = texttospeech.SynthesisInput(text=text)
 
