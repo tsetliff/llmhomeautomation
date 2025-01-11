@@ -72,10 +72,11 @@ class Listen():
                         print(f"Recognized: {result.get('text', '')}")
                         self.add_string(result.get('text', ''))
                         self.remove_old_messages()
-                        user_request = self.check_for_keyword()
-                        print(user_request)
-                        if user_request:
-                            command = GetCommand().go(user_request)
+                        message = self.check_for_keyword()
+                        print(message)
+                        if message:
+                            request = {"type": "request", "location": "", "message": message}
+                            command = GetCommand().go(request)
                             RunCommand().run(command)
                     else:
                         partial_result = json.loads(rec.PartialResult())

@@ -1,34 +1,22 @@
 from .api_handler import APIHandler
+from .modules.module_manager import ModuleManager
 
 class GetCommand:
     def __init__(self):
         pass
 
-    def go(self, request: str):
+    def go(self, request: dict):
+        request = ModuleManager().process_request(request)
+        status = {}
+        status = ModuleManager().process_status(status)
+
 #Your name is Arnold, you have the persona of Arnold Schwarzenegger in Terminator 2 where you are the good guy.
         prompt = f"""
 You are a home automation machine that returns a list of commands for the house to run based on a users request.
 You may however answer any question even if it is not related to home automation. 
 
 Given this state of my house:
-{{
-  "Livingroom": {{
-    "light1": {{
-       "brightness": {{
-          "type": "value of 0 to 100",
-          "value": 0
-        }}
-     }}
-  }},
-  "Kitchen": {{
-    "light1": {{
-       "brightness": {{
-          "type": "value of 0 to 100",
-          "value": 0
-        }}
-     }}  
-  }}
-}}
+{status}
 
 And commands in this form:
 [{{"Location": "Device": {{ "setting": "value"}}}}]

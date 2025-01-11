@@ -25,4 +25,4 @@ if [ -z "$VIRTUAL_ENV" ]; then
   source venv/bin/activate
 fi
 
-python3 -m $1
+exec python3 -m $1
