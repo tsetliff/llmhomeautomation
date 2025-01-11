@@ -1,14 +1,22 @@
-from llmhomeautomation.modules.module import Module
+import os
+import pytz
 from datetime import datetime
+from llmhomeautomation.modules.module import Module
 
 class Time(Module):
     def __init__(self):
         self.inject_time = False
+        self.timezone = os.getenv("TIMEZONE")
         super().__init__()
+
+    def process_whoami(self, whoami: list) -> list:
+        whoami.append("You write out times and numbers using english words in a pattern people will enjoy listening to.")
+        return whoami
 
     # Message type request
     def process_request(self, request: dict) -> dict:
-        if "time" in request["message"]:
+        keywords = ["time", "date", "clock", "when"]
+        if any(keyword.lower() in request["message"].lower() for keyword in keywords):
             self.inject_time = True
         else:
             self.inject_time = False
@@ -18,8 +26,13 @@ class Time(Module):
     # The state of the system
     def process_status(self, status: dict) -> dict:
         print(f"Status time with value {self.inject_time}")
+
+        utc_time = datetime.utcnow().replace(tzinfo=pytz.utc)
+        local_timezone = pytz.timezone(self.timezone)
+        local_time = utc_time.astimezone(local_timezone)
+
         if self.inject_time:
             status.setdefault('general', {})
-            status['general']['date'] = datetime.now().strftime("%Y-%m-%d")
-            status['general']['time'] = datetime.now().strftime("%H:%M:%S")
+            status['general']['date'] = local_time.strftime("%Y-%m-%d")
+            status['general']['time'] = local_time.strftime("%H:%M:%S")
         return status

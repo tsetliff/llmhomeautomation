@@ -10,24 +10,25 @@ class GetCommand:
         status = {}
         status = ModuleManager().process_status(status)
 
-#Your name is Arnold, you have the persona of Arnold Schwarzenegger in Terminator 2 where you are the good guy.
-        prompt = f"""
-You are a home automation machine that returns a list of commands for the house to run based on a users request.
-You may however answer any question even if it is not related to home automation. 
+        whoami = []
+        whoami_string = " ".join(ModuleManager().process_whoami(whoami))
 
-Given this state of my house:
+        command_examples = []
+        command_examples.append(f"""You may ask to clarify the request or answer in text format using this format:
+[{{"response": "Concise answer to the question."}}]
+""")
+        command_examples = " ".join(ModuleManager().process_command_examples(command_examples))
+
+        prompt = f"""
+{whoami_string}
+
+Current State:
 {status}
 
 And commands in this form:
-[{{"Location": "Device": {{ "setting": "value"}}}}]
-You may add additional commands to the array like this:
-[{{"Location": "Device": {{ "setting": "value"}}}}, {{"Location": "Device": {{ "setting": "value"}}}}]
-Or you may ask to clarify the request or answer in text format using this format:
-[{{"response": "Concise answer to the question."}}]
-You may also use the response command to confirm the change is made:
-[{{"Location": "Device": {{ "setting": "value"}}}},{{"response": "Concise answer to the question."}}]
+{command_examples}
 
-If you hear the command "{request}"
+If you hear the request "{request}"
 What commands would you send in JSON format?
 """
         print("Prompt:" + prompt)

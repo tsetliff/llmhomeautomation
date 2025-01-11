@@ -120,6 +120,33 @@ else
   echo "AI_NAME is already set in $ENV_FILE with a value $AI_NAME."
 fi
 
+# Check if TIMEZONE exists in the .env file and has a value
+TIMEZONE=$(grep -E '^TIMEZONE=' "$ENV_FILE" | cut -d '=' -f2)
+
+if [ -z "$TIMEZONE" ]; then
+  # Prompt the user for the TIMEZONE value
+  DEFAULT_TIMEZONE="America/New_York"
+  echo ""
+  read -p "Please enter your timezone just hit enter for [$DEFAULT_TIMEZONE]: " USER_KEY
+
+  # Ensure the input is not empty
+  if [ -z "$USER_KEY" ]; then
+    echo "You didn't give me a value, $DEFAULT_TIMEZONE it is..."
+    USER_KEY="$DEFAULT_TIMEZONE"
+  fi
+
+  # If TIMEZONE exists as a blank line, replace it; otherwise, append it
+  if grep -q '^TIMEZONE=' "$ENV_FILE"; then
+    sed -i "s|^TIMEZONE=.*|TIMEZONE=$USER_KEY|" "$ENV_FILE"
+  else
+    echo "TIMEZONE=$USER_KEY" >> "$ENV_FILE"
+  fi
+
+  echo "TIMEZONE is now $USER_KEY"
+else
+  echo "TIMEZONE is already set in $ENV_FILE with a value $TIMEZONE."
+fi
+
 # Check if OPENAI_KEY exists in the .env file and has a value
 OPENAI_KEY=$(grep -E '^OPENAI_KEY=' "$ENV_FILE" | cut -d '=' -f2)
 

@@ -7,6 +7,7 @@ import time
 import vosk
 
 from dotenv import load_dotenv
+from .modules.module_manager import ModuleManager
 
 # Must load before my modules that directly access the environment
 load_dotenv()
@@ -30,6 +31,8 @@ class Listen():
         self.voice_text = []
 
     def go(self):
+        ModuleManager()
+        
         # Ensure the Vosk model directory exists
         if not os.path.exists(vosk_model):
             print(f"Error: Model directory '{vosk_model}' not found.")
