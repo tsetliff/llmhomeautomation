@@ -1,3 +1,5 @@
+import sys
+
 from .api_handler import APIHandler
 from .modules.module_manager import ModuleManager
 
@@ -5,8 +7,11 @@ class GetCommand:
     def __init__(self):
         pass
 
-    def go(self, request: dict):
+    def go(self, request: dict) -> str | None:
         request = ModuleManager().process_request(request)
+        if request is None:
+            return None
+
         status = {}
         status = ModuleManager().process_status(status)
 
@@ -14,9 +19,6 @@ class GetCommand:
         whoami_string = " ".join(ModuleManager().process_whoami(whoami))
 
         command_examples = []
-        command_examples.append(f"""You may ask to clarify the request or answer in text format using this format:
-[{{"response": "Concise answer to the question."}}]
-""")
         command_examples = " ".join(ModuleManager().process_command_examples(command_examples))
 
         prompt = f"""

@@ -41,8 +41,10 @@ class ModuleManager:
             module_path = f"llmhomeautomation.modules.{module_name}.{module_name.split('.')[-1]}"
             module_lib = importlib.import_module(module_path)
 
-            # Extract the class name from the module name
-            class_name = module_name.split('.')[-1].capitalize()
+            # Fix: Convert kebab-case to PascalCase
+            raw_class_name = module_name.split('.')[-1]  # 'google-text-to-speech'
+            class_name = ''.join(part.capitalize() for part in raw_class_name.split('-'))  # 'GoogleTextToSpeech'
+
             module_class = getattr(module_lib, class_name)
 
             if issubclass(module_class, Module):
@@ -78,26 +80,29 @@ class ModuleManager:
                 print(f"Module '{module_name}' has been disabled.")
 
     def process_whoami(self, whoami: list) -> list:
-        # Pass status through each persistent module
         for module in self.modules.values():
             whoami = module.process_whoami(whoami)
         return whoami
 
-    def process_request(self, status: dict) -> dict:
-        # Pass status through each persistent module
+    def process_request(self, request: dict) -> dict:
         for module in self.modules.values():
-            status = module.process_request(status)
-        return status
+            request = module.process_request(request)
+            if request is None:
+                # The module requested that nothing else attempt to process the request
+                break
+        return request
 
     def process_status(self, status: dict) -> dict:
-        # Pass status through each persistent module
         for module in self.modules.values():
             status = module.process_status(status)
         return status
 
     def process_command_examples(self, command_examples: list) -> list:
-        # Pass status through each persistent module
         for module in self.modules.values():
             command_examples = module.process_command_examples(command_examples)
         return command_examples
 
+    def process_commands(self, commands: list) -> list:
+        for module in self.modules.values():
+            commands = module.process_commands(commands)
+        return commands

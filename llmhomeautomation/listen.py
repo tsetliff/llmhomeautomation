@@ -13,8 +13,6 @@ from .modules.module_manager import ModuleManager
 load_dotenv()
 
 from .get_command import GetCommand
-from .run_command import RunCommand
-
 
 vosk_model = "./data/" + os.getenv("VOSK_MODEL")
 wake_words = os.getenv("AI_NAME").lower().split(",")
@@ -32,7 +30,7 @@ class Listen():
 
     def go(self):
         ModuleManager()
-        
+
         # Ensure the Vosk model directory exists
         if not os.path.exists(vosk_model):
             print(f"Error: Model directory '{vosk_model}' not found.")
@@ -80,7 +78,10 @@ class Listen():
                         if message:
                             request = {"type": "request", "location": "", "message": message}
                             command = GetCommand().go(request)
-                            RunCommand().run(command)
+                            if command:
+                                print(command)
+                                commands = json.loads(command)
+                                ModuleManager().process_commands(commands)
                     else:
                         partial_result = json.loads(rec.PartialResult())
                         print(f"Partial: {partial_result.get('partial', '')}", end="\r")

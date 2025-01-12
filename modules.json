@@ -1,5 +1,6 @@
 {
   "home": true,
   "time": true,
-  "persona.arnold": false
+  "persona.arnold": false,
+  "google-text-to-speech": true
 }

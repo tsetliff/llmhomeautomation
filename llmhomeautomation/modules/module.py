@@ -20,3 +20,6 @@ class Module:
     # Examples of commands
     def process_command_examples(self, command_examples: list) -> list:
         return command_examples
+
+    def process_commands(self, commands: list) -> list:
+        return commands

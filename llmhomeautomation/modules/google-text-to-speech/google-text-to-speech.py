@@ -1,14 +1,33 @@
+from llmhomeautomation.modules.module import Module
 from google.cloud import texttospeech
 import subprocess
 import os
 
-class Say:
+# Add the personality to tell the system that it does home automation.
+class GoogleTextToSpeech(Module):
     def __init__(self):
         self.playback_device = os.getenv("PLAYBACK_DEVICE")
         self.client = texttospeech.TextToSpeechClient()
+        super().__init__()
+
+    def process_command_examples(self, command_examples: list) -> list:
+        command_examples.append(f"""You may ask to clarify the request or answer in text format using this format:
+[{{"response": "Concise answer to the question."}}]""")
+        return command_examples
+
+    def process_commands(self, commands: list) -> list:
+        # Create a new list excluding commands that contain "response"
+        updated_commands = []
+
+        for command in commands:
+            if "response" in command:
+                self.say(command["response"])  # Process the response
+            else:
+                updated_commands.append(command)  # Keep commands without "response"
+
+        return updated_commands
 
     def say(self, text: str):
-
         # Prevent sending a book to google synthesis
         text = text[:200]
 
