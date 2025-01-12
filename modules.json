@@ -2,5 +2,6 @@
   "home": true,
   "time": true,
   "persona.arnold": false,
-  "google-text-to-speech": true
+  "google-text-to-speech": true,
+  "espeak": true
 }

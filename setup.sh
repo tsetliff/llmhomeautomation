@@ -56,7 +56,7 @@ fi
 # Install ubuntu packages
 sudo apt update
 sudo apt install -y python3-pip python3-venv zip unzip apt-transport-https ca-certificates gnupg curl \
-     libportaudio2 libportaudiocpp0 portaudio19-dev alsa-utils supervisor
+     libportaudio2 libportaudiocpp0 portaudio19-dev alsa-utils supervisor espeak-ng
 
 # Get the directory where the script is located
 script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)

@@ -5,6 +5,10 @@ class Module:
     def enabled(self) -> bool:
         return True
 
+    # A list of strings indicating what services are owned indicating only one module may do them at a time
+    def owns(self) -> list:
+        return []
+
     # Message type request
     def process_whoami(self, whoami: list) -> list:
         return whoami

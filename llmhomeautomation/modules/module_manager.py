@@ -79,30 +79,54 @@ class ModuleManager:
                 del self.modules[module_name]
                 print(f"Module '{module_name}' has been disabled.")
 
+    def with_ownership(func):
+        def wrapper(self, data):
+            return self._process_with_ownership(data, func.__name__)
+
+        return wrapper
+
+    @with_ownership
     def process_whoami(self, whoami: list) -> list:
-        for module in self.modules.values():
-            whoami = module.process_whoami(whoami)
-        return whoami
+        pass
 
+    @with_ownership
     def process_request(self, request: dict) -> dict:
-        for module in self.modules.values():
-            request = module.process_request(request)
-            if request is None:
-                # The module requested that nothing else attempt to process the request
-                break
-        return request
+        pass
 
+    @with_ownership
     def process_status(self, status: dict) -> dict:
-        for module in self.modules.values():
-            status = module.process_status(status)
-        return status
+        pass
 
+    @with_ownership
     def process_command_examples(self, command_examples: list) -> list:
-        for module in self.modules.values():
-            command_examples = module.process_command_examples(command_examples)
-        return command_examples
+        pass
 
+    @with_ownership
     def process_commands(self, commands: list) -> list:
+        pass
+
+    def _process_with_ownership(self, data, method_name: str):
+        owned_items = set()
+
         for module in self.modules.values():
-            commands = module.process_commands(commands)
-        return commands
+            module_owns = module.owns()
+
+            # Skip the module if it owns already claimed items
+            if any(item in owned_items for item in module_owns):
+                print(f"Skipping {module} because it owns already claimed items: {module_owns}")
+                continue
+
+            # Update the owned items
+            owned_items.update(module_owns)
+
+            # Dynamically call the module's method
+            method = getattr(module, method_name, None)
+            if method:
+                data = method(data)
+                # Module has handled something completely and doesn't want to continue.
+                if data is None:
+                    break
+            else:
+                print(f"Module {module} does not have a method '{method_name}'")
+
+        return data

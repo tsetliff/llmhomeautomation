@@ -26,6 +26,7 @@ class Listen():
     SAMPLE_RATE = 16000  # Sample rate for microphone input
 
     def __init__(self):
+        self.listening = True
         self.voice_text = []
 
     def go(self):
@@ -38,7 +39,6 @@ class Listen():
             print("and extract it into the current directory.")
             sys.exit(1)
 
-
         # Load the Vosk model
         print("Loading Vosk model...")
         model = vosk.Model(vosk_model)
@@ -50,7 +50,8 @@ class Listen():
             if status:
                 print(f"Audio status: {status}", file=sys.stderr)
             # Add audio data to the queue
-            audio_queue.put(bytes(indata))
+            if self.listening:
+                audio_queue.put(bytes(indata))
 
         # Set up the microphone stream
         print("Opening recording device...")
@@ -81,7 +82,9 @@ class Listen():
                             if command:
                                 print(command)
                                 commands = json.loads(command)
+                                self.listening = False
                                 ModuleManager().process_commands(commands)
+                                self.listening = True
                     else:
                         partial_result = json.loads(rec.PartialResult())
                         print(f"Partial: {partial_result.get('partial', '')}", end="\r")

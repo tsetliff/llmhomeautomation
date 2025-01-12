@@ -10,6 +10,9 @@ class GoogleTextToSpeech(Module):
         self.client = texttospeech.TextToSpeechClient()
         super().__init__()
 
+    def owns(self) -> list:
+        return ["speaking"]
+
     def process_command_examples(self, command_examples: list) -> list:
         command_examples.append(f"""You may ask to clarify the request or answer in text format using this format:
 [{{"response": "Concise answer to the question."}}]""")
