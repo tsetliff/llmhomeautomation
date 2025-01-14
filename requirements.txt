@@ -2,7 +2,9 @@ google-cloud-texttospeech
 openai
 pyttsx3
 python-dotenv
+pytz
+requests
 sounddevice
+tiktoken
 vosk
 websockets
-pytz

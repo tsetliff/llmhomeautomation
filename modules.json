@@ -1,5 +1,7 @@
 {
+  "context": true,
   "home": true,
+  "hue": true,
   "time": true,
   "persona.arnold": false,
   "google-text-to-speech": true,

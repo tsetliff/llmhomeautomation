@@ -2,6 +2,8 @@ import hashlib
 import json
 import os
 import re
+import sys
+
 from openai import OpenAI
 
 class APIHandler:
@@ -30,20 +32,13 @@ class APIHandler:
         # Generate an MD5 hash
         return hashlib.md5(request_string.encode('utf-8')).hexdigest()
 
-    def get_response(self, prompt: str, model: str = "gpt-4o") -> str:
+    def get_response(self, messages: list, model: str = "gpt-4o") -> str:
         """
         Send a request to the OpenAI API and get the response. Cache the response if it doesn't exist.
         :param prompt: Prompt in string format.
         :param model: The model to use for the request.
         :return: Content of the response message.
         """
-
-        messages = [
-            {
-                "role": "system",
-                "content": prompt
-            }
-        ]
 
         # Generate a unique hash for the request
         request_hash = self._generate_hash(messages, model)
@@ -57,7 +52,7 @@ class APIHandler:
 
         # If not cached, send the request to the API
         print("Cache miss. Sending request to the API...")
-        print(prompt)
+        print(messages)
         response = self.client.chat.completions.create(
             model=model,
             messages=messages

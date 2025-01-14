@@ -9,6 +9,9 @@ class Module:
     def owns(self) -> list:
         return []
 
+    def process_history(self, history: list) -> list:
+        return history
+
     # Message type request
     def process_whoami(self, whoami: list) -> list:
         return whoami

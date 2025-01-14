@@ -16,10 +16,4 @@ class Home(Module):
         return status
 
     def process_command_examples(self, command_examples: list) -> list:
-        # Home automation command to change the state of the house
-        # [{{"Location": "Device": {{ "setting": "value"}}}}]
-        # You may add additional commands to the array like this:
-        # [{{"Location": "Device": {{ "setting": "value"}}}}, {{"Location": "Device": {{ "setting": "value"}}}}]
-        # You may also use the response command to confirm the change is made:
-        # [{{"Location": "Device": {{ "setting": "value"}}}},{{"response": "Concise answer to the question."}}]
         return command_examples

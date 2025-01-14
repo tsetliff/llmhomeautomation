@@ -1,3 +1,4 @@
+import json
 import sys
 
 from .api_handler import APIHandler
@@ -30,10 +31,24 @@ Current State:
 And commands in this form:
 {command_examples}
 
-If you hear the request "{request}"
-What commands would you send in JSON format?
+Please reply in JSON format using an array of commands.
 """
         print("Prompt:" + prompt)
-        result = APIHandler().get_response(prompt)
+        messages = [
+            {
+                "role": "system",
+                "content": prompt
+            },
+        ]
+
+        messages = ModuleManager().process_history(messages)
+
+        messages.append(
+            {
+                "role": "user",
+                "content": json.dumps(request)
+            }
+        )
+        result = APIHandler().get_response(messages)
         print("Prompt Result:" + result)
         return result

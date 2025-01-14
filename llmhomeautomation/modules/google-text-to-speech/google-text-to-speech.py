@@ -19,16 +19,11 @@ class GoogleTextToSpeech(Module):
         return command_examples
 
     def process_commands(self, commands: list) -> list:
-        # Create a new list excluding commands that contain "response"
-        updated_commands = []
-
         for command in commands:
             if "response" in command:
                 self.say(command["response"])  # Process the response
-            else:
-                updated_commands.append(command)  # Keep commands without "response"
 
-        return updated_commands
+        return commands
 
     def say(self, text: str):
         # Prevent sending a book to google synthesis

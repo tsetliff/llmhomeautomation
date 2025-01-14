@@ -86,6 +86,10 @@ class ModuleManager:
         return wrapper
 
     @with_ownership
+    def process_history(self, history: list) -> list:
+        pass
+
+    @with_ownership
     def process_whoami(self, whoami: list) -> list:
         pass
 
@@ -113,7 +117,7 @@ class ModuleManager:
 
             # Skip the module if it owns already claimed items
             if any(item in owned_items for item in module_owns):
-                print(f"Skipping {module} because it owns already claimed items: {module_owns}")
+                print(f"Skipping {module.__class__.__name__} when calling {method_name} because it is trying to own already claimed items: {module_owns}")
                 continue
 
             # Update the owned items
