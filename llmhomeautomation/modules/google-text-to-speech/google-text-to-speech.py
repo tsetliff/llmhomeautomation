@@ -21,6 +21,7 @@ class GoogleTextToSpeech(Module):
     def process_commands(self, commands: list) -> list:
         for command in commands:
             if "response" in command:
+                print(command)
                 self.say(command["response"])  # Process the response
 
         return commands

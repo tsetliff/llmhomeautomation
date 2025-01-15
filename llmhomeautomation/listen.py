@@ -78,10 +78,8 @@ class Listen():
                         print(message)
                         if message:
                             request = {"type": "request", "location": "", "message": message}
-                            command = GetCommand().go(request)
-                            if command:
-                                print(command)
-                                commands = json.loads(command)
+                            commands = GetCommand().getCommandList(request)
+                            if commands:
                                 self.listening = False
                                 ModuleManager().process_commands(commands)
                                 self.listening = True

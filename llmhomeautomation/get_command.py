@@ -8,10 +8,11 @@ class GetCommand:
     def __init__(self):
         pass
 
-    def go(self, request: dict) -> str | None:
+    def getCommandList(self, request: dict, depth = 0) -> list | None:
         request = ModuleManager().process_request(request)
         if request is None:
             return None
+
 
         status = {}
         status = ModuleManager().process_status(status)
@@ -51,4 +52,24 @@ Please reply in JSON format using an array of commands.
         )
         result = APIHandler().get_response(messages)
         print("Prompt Result:" + result)
-        return result
+        try:
+            commands = json.loads(result)
+
+            # Check if it's a list
+            if not isinstance(commands, list):
+                raise ValueError("JSON data is not a list.")
+
+            # Check if every item in the list is a dictionary
+            if not all(isinstance(item, dict) for item in commands):
+                raise ValueError("JSON list does not contain only dictionaries.")
+        except Exception as e:
+            if depth > 0:
+                raise e
+            fix_json_request = {"type": "request", "location": request["location"], "message":
+f"""
+I received invalid json back.  Can you please fix this json that should be an array of objects:
+{result}
+"""
+            }
+            commands = self.getCommandList(fix_json_request)
+        return commands
