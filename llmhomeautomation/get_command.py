@@ -50,10 +50,12 @@ Please reply in JSON format using an array of commands.
                 "content": json.dumps(request)
             }
         )
-        result = APIHandler().get_response(messages)
-        print("Prompt Result:" + result)
+        response = APIHandler().get_response(messages)
+        print("Prompt Result:" + response)
+        response = ModuleManager().process_response({"role": "assistant", "content": response})
+
         try:
-            commands = json.loads(result)
+            commands = json.loads(response["content"])
 
             # Check if it's a list
             if not isinstance(commands, list):
@@ -68,7 +70,7 @@ Please reply in JSON format using an array of commands.
             fix_json_request = {"type": "request", "location": request["location"], "message":
 f"""
 I received invalid json back.  Can you please fix this json that should be an array of objects:
-{result}
+{response}
 """
             }
             commands = self.getCommandList(fix_json_request)

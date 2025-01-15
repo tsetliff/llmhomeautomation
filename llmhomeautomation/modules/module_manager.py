@@ -94,15 +94,19 @@ class ModuleManager:
         pass
 
     @with_ownership
-    def process_request(self, request: dict) -> dict:
-        pass
-
-    @with_ownership
     def process_status(self, status: dict) -> dict:
         pass
 
     @with_ownership
     def process_command_examples(self, command_examples: list) -> list:
+        pass
+
+    @with_ownership
+    def process_request(self, request: dict) -> dict:
+        pass
+
+    @with_ownership
+    def process_response(self, response: dict) -> dict:
         pass
 
     @with_ownership

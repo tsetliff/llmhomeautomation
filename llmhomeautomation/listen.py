@@ -77,7 +77,7 @@ class Listen():
                         message = self.check_for_keyword()
                         print(message)
                         if message:
-                            request = {"type": "request", "location": "", "message": message}
+                            request = {"role": "user", "type": "request", "location": "", "message": message}
                             commands = GetCommand().getCommandList(request)
                             if commands:
                                 self.listening = False

@@ -28,5 +28,8 @@ class Module:
     def process_command_examples(self, command_examples: list) -> list:
         return command_examples
 
+    def process_response(self, response: dict) -> dict:
+        return response
+
     def process_commands(self, commands: list) -> list:
         return commands

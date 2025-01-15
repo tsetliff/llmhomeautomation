@@ -13,12 +13,12 @@ class Context(Module):
         return whoami
 
     def process_request(self, request: dict) -> dict:
-        self.add_entry(request | {"role": "user"})
+        self.add_entry(request)
         return request
 
-    def process_commands(self, commands: list) -> list:
-        self.add_entry({"role": "assistant", "content": commands})
-        return commands
+    def process_response(self, response: dict) -> dict:
+        self.add_entry(response)
+        return response
 
     def process_history(self, history: list) -> list:
         for entry in self.history[:-1]:
@@ -29,7 +29,10 @@ class Context(Module):
             if entry["role"] == "user" and "message" in entry:
                 history.append({"role": entry['role'], "content": entry["message"]})
             elif entry["role"] == "assistant":
-                history.append({"role": entry['role'], "content": json.dumps(entry["content"])})
+                content = entry["content"]
+                if not isinstance(content, str):
+                    content = json.dumps(content)
+                history.append({"role": entry['role'], "content": content})
         return history
 
     def add_entry(self, entry: dict):
