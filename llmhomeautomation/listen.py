@@ -23,8 +23,6 @@ print(f"using model {vosk_model} for wake words {wake_words}")
 RECORD_TIME_SECONDS = 5
 
 class Listen():
-    SAMPLE_RATE = 16000  # Sample rate for microphone input
-
     def __init__(self):
         self.listening = True
         self.voice_text = []
