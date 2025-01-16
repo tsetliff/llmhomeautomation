@@ -56,15 +56,17 @@ class Listen():
         # Set up the microphone stream
         print("Opening recording device...")
         with sd.RawInputStream(
-            samplerate=self.SAMPLE_RATE,
             blocksize=8000,
             dtype="int16",
             channels=1,
             callback=audio_callback,
             device=record_device
         ):
-            print("Listening... Press Ctrl+C to stop.")
-            rec = vosk.KaldiRecognizer(model, self.SAMPLE_RATE)
+            device_info = sd.query_devices(record_device, 'input')
+            sample_rate = int(device_info['default_samplerate'])
+
+            print(f"Listening with sample ratre of {sample_rate}... Press Ctrl+C to stop.")
+            rec = vosk.KaldiRecognizer(model, sample_rate)
             try:
                 while True:
                     # Get audio data from the queue
