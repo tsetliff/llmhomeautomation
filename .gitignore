@@ -24,3 +24,6 @@ todo.txt
 
 # Data files
 data/
+
+# AI Code Writing
+.aider*
