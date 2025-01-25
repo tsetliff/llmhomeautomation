@@ -90,6 +90,10 @@ class ModuleManager:
         pass
 
     @with_ownership
+    def llm_request(self, messages: list) -> str:
+        pass
+
+    @with_ownership
     def process_whoami(self, whoami: list) -> list:
         pass
 

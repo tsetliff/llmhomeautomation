@@ -319,6 +319,7 @@ fi
 
 # Make sure this is executable before supervisor is set up to run it
 chmod 700 run_module.sh
+chmod 755 ask
 
 sudo systemctl start supervisor
 sudo systemctl enable supervisor

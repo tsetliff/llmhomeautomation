@@ -1,14 +1,18 @@
+import asyncio
 import json
-import sys
+import websockets
 
-from .api_handler import APIHandler
-from .modules.module_manager import ModuleManager
+from dotenv import load_dotenv
+load_dotenv()
+
+from llmhomeautomation.modules.llm.openai.openai import OpenAILLM
+from llmhomeautomation.modules.module_manager import ModuleManager
 
 class GetCommand:
     def __init__(self):
         pass
 
-    def getCommandList(self, request: dict, depth = 0) -> list | None:
+    def get_command_list(self, request: dict, depth=0) -> list | None:
         request = ModuleManager().process_request(request)
         if request is None:
             return None
@@ -49,7 +53,7 @@ Please reply in JSON format using an array of commands.
                 "content": json.dumps(request)
             }
         )
-        response = APIHandler().get_response(messages)
+        response = OpenAILLM().llm_request(messages)
         print("Prompt Result:" + response)
         response = ModuleManager().process_response({"role": "assistant", "content": response})
 
@@ -66,11 +70,31 @@ Please reply in JSON format using an array of commands.
         except Exception as e:
             if depth > 0:
                 raise e
-            fix_json_request = {"type": "request", "location": request["location"], "message":
-f"""
-I received invalid json back.  Can you please fix this json that should be an array of objects:
-{response}
-"""
+            fix_json_request = {
+                "type": "request",
+                "location": request.get("location", ""),
+                "message": f"I received invalid json back. Can you please fix this json that should be an array of objects: {response}"
             }
-            commands = self.getCommandList(fix_json_request)
+            commands = self.get_command_list(fix_json_request)
         return commands
+
+class Processor:
+    def __init__(self, uri="ws://localhost:8765"):
+        self.uri = uri
+
+    async def process_messages(self):
+        async with websockets.connect(self.uri, ping_interval=20, ping_timeout=20) as websocket:
+            try:
+                while True:
+                    message = await websocket.recv()
+                    print(f"Received: {message}")
+                    request = json.loads(message)
+                    commands = GetCommand().get_command_list(request)
+                    if commands:
+                        ModuleManager().process_commands(commands)
+            except KeyboardInterrupt:
+                print("WebSocket listener stopped.")
+
+if __name__ == "__main__":
+    processor = Processor()
+    asyncio.run(processor.process_messages())

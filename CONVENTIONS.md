@@ -3,7 +3,9 @@
 ## Module Structure
 
 - All functionality should be organized into modules located in `./llmhomeautomation/modules`.
-- Each module must reside in its own directory.
+- Each module should ideally be first within a category directory like listen and then in a directory of the same name.
+- Each module must reside in its own sub directory of the same name as the main module file such as llmhomeautomation/modules/listen/vosk/vosk.
+- Each module that requires system constants needs to load from dotenv import load_dotenv and load_dotenv() before doing any work.
 
 ## Module Components
 

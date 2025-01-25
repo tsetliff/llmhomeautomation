@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import json
 import os
 import queue
@@ -5,67 +8,93 @@ import sounddevice as sd
 import sys
 import time
 import vosk
-
-from dotenv import load_dotenv
-# Must load before modules that directly access the environment
-load_dotenv()
+import asyncio
+import websockets
 
 from llmhomeautomation.modules.module import Module
 
-from ...get_command import GetCommand
+vosk_model = "./data/" + os.getenv("VOSK_MODEL")
+wake_words = os.getenv("AI_NAME").lower().split(",")
+record_device = os.getenv("RECORD_DEVICE")
 
-# Add the personality to tell the system that it does home automation.
 class Vosk(Module):
     def __init__(self):
-        self.playback_device = os.getenv("PLAYBACK_DEVICE")
-        self.client = texttospeech.TextToSpeechClient()
-        super().__init__()
+        self.listening = True
+        self.voice_text = []
 
     def owns(self) -> list:
-        return ["listening"]
+        return ["listen"]
 
     def process_command_examples(self, command_examples: list) -> list:
         command_examples.append(f"""You may ask to clarify the request or answer in text format using this format:
 [{{"response": "Concise answer to the question."}}]""")
         return command_examples
 
-    def process_commands(self, commands: list) -> list:
-        for command in commands:
-            if "response" in command:
-                print(command)
-                self.say(command["response"])  # Process the response
+    async def send_request(self, message):
+        async with websockets.connect("ws://localhost:8765") as websocket:
+            request = json.dumps({"role": "user", "type": "request", "location": "", "message": message})
+            await websocket.send(request)
 
-        return commands
+    def listen(self):
+        if not os.path.exists(vosk_model):
+            print(f"Error: Model directory '{vosk_model}' not found.")
+            sys.exit(1)
 
-    def say(self, text: str):
-        # Prevent sending a book to google synthesis
-        text = text[:200]
+        model = vosk.Model(vosk_model)
+        audio_queue = queue.Queue()
 
-        print("Saying:" + text)
-        input_text = texttospeech.SynthesisInput(text=text)
+        def audio_callback(indata, frames, time, status):
+            if status:
+                print(f"Audio status: {status}", file=sys.stderr)
+            if self.listening:
+                audio_queue.put(bytes(indata))
 
-        voice = texttospeech.VoiceSelectionParams(
-            language_code="en-US",  # Language and accent
-            # https://cloud.google.com/text-to-speech/docs/voices
-            # name="en-US-Wavenet-D",  # Wavenet for high-quality voices
-            name="en-US-Standard-D",
-            ssml_gender=texttospeech.SsmlVoiceGender.MALE  # Gender: MALE, FEMALE, or NEUTRAL
-        )
+        with sd.RawInputStream(
+            blocksize=8000,
+            dtype="int16",
+            channels=1,
+            callback=audio_callback,
+            device=record_device
+        ):
+            device_info = sd.query_devices(record_device, 'input')
+            sample_rate = int(device_info['default_samplerate'])
 
-        audio_config = texttospeech.AudioConfig(
-            audio_encoding=texttospeech.AudioEncoding.LINEAR16  # Audio format: MP3, LINEAR16, OGG_OPUS
-        )
+            print(f"Listening with sample rate of {sample_rate}... Press Ctrl+C to stop.")
+            rec = vosk.KaldiRecognizer(model, sample_rate)
+            try:
+                while True:
+                    data = audio_queue.get()
+                    if rec.AcceptWaveform(data):
+                        result = json.loads(rec.Result())
+                        self.add_string(result.get('text', ''))
+                        self.remove_old_messages()
+                        message = self.check_for_keyword()
+                        if message:
+                            print(message)
+                            asyncio.run(self.send_request(message))
+                    else:
+                        partial_result = json.loads(rec.PartialResult())
+                        print(f"Partial: {partial_result.get('partial', '')}", end="\r")
+            except KeyboardInterrupt:
+                print("\nStopped listening.")
 
-        response = self.client.synthesize_speech(
-            input=input_text,
-            voice=voice,
-            audio_config=audio_config
-        )
+    def add_string(self, input_string):
+        current_time = int(time.time())
+        self.voice_text.append((input_string, current_time))
 
-        output_file = "/tmp/output.wav"
+    def remove_old_messages(self):
+        current_time = int(time.time())
+        self.voice_text = [(s, t) for s, t in self.voice_text if current_time - t <= 5]
 
-        with open(output_file, "wb") as out:
-            out.write(response.audio_content)
-            print(f"Audio content written to {output_file}")
+    def check_for_keyword(self):
+        concatenated_string = " ".join([s for s, _ in self.voice_text])
+        for wake_word in wake_words:
+            if wake_word in concatenated_string:
+                # Clear voice_text after detecting a keyword to prevent repeated sends
+                message = concatenated_string.split(wake_word, 1)[1].strip().lower()
+                self.voice_text.clear()
+                return message
+        return None
 
-        subprocess.run(['aplay', '-D', self.playback_device, '/tmp/output.wav'])
+if __name__ == "__main__":
+    Vosk().listen()

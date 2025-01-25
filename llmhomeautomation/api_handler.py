@@ -4,7 +4,7 @@ import os
 import re
 import sys
 
-from openai import OpenAI
+from llmhomeautomation.modules.llm.openai.openai import OpenAILLM
 
 class APIHandler:
     def __init__(self, cache_dir: str = "api_cache"):
@@ -16,7 +16,7 @@ class APIHandler:
         if not openai_key:
             raise ValueError(f"Configuration value for OPENAI_KEY is not set or empty in your .env file.")
 
-        self.client = OpenAI(api_key=openai_key)
+        self.client = OpenAILLM()
         self.cache_dir = cache_dir
         os.makedirs(self.cache_dir, exist_ok=True)  # Ensure the cache directory exists
 

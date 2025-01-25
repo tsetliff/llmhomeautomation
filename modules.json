@@ -4,6 +4,6 @@
   "command.hue": true,
   "command.time": true,
   "persona.arnold": false,
-  "speak.espeak": true,
+  "speak.espeak": false,
   "speak.google-text-to-speech": true
 }

@@ -1,9 +1,12 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import json
 import sys
-
-from llmhomeautomation.modules.module import Module
 import os
 import requests
+
+from llmhomeautomation.modules.module import Module
 
 # Add the personality to tell the system that it does home automation.
 class Hue(Module):

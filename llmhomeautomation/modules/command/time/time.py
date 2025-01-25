@@ -3,6 +3,9 @@ import pytz
 from datetime import datetime
 from llmhomeautomation.modules.module import Module
 
+from dotenv import load_dotenv
+load_dotenv()
+
 class Time(Module):
     def __init__(self):
         self.inject_time = False
@@ -28,6 +31,8 @@ class Time(Module):
         print(f"Status time with value {self.inject_time}")
 
         utc_time = datetime.utcnow().replace(tzinfo=pytz.utc)
+        if not self.timezone:
+            raise ValueError("TIMEZONE environment variable is not set or is invalid.")
         local_timezone = pytz.timezone(self.timezone)
         local_time = utc_time.astimezone(local_timezone)
 
