@@ -34,14 +34,14 @@ class Hue(Module):
     # The state of the system
     def process_status(self, status: dict) -> dict:
         # curl -X PUT -d '{"on": true}' http://192.168.1.100/api/your_generated_username/lights/1/state
-        url = f"http://{self.bridge_ip_address}/api/{self.bridge_api_key}/lights"
-        response = requests.get(url)
-        response.raise_for_status()  # Raise an error for bad responses
+        #url = f"http://{self.bridge_ip_address}/api/{self.bridge_api_key}/lights"
+        #response = requests.get(url)
+        #response.raise_for_status()  # Raise an error for bad responses
 
-        houseState = response.json()
-        print(json.dumps(houseState, indent=4, sort_keys=True))
+        #houseState = response.json()
+        #print(json.dumps(houseState, indent=4, sort_keys=True))
         #sys.exit()
-        response.raise_for_status()
+        #response.raise_for_status()
         return status
 
     def process_command_examples(self, command_examples: list) -> list:

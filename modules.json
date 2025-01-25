@@ -1,9 +1,11 @@
 {
   "context": true,
   "home": true,
-  "command.hue": true,
-  "command.time": true,
+  "home.hue": true,
+  "system.time": true,
+  "system.reboot": true,
   "persona.arnold": false,
+  "llm.open_ai_llm": true,
   "speak.espeak": false,
-  "speak.google-text-to-speech": true
+  "speak.google_text_to_speech": true
 }

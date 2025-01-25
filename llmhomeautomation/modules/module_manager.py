@@ -41,9 +41,9 @@ class ModuleManager:
             module_path = f"llmhomeautomation.modules.{module_name}.{module_name.split('.')[-1]}"
             module_lib = importlib.import_module(module_path)
 
-            # Fix: Convert kebab-case to PascalCase
-            raw_class_name = module_name.split('.')[-1]  # 'google-text-to-speech'
-            class_name = ''.join(part.capitalize() for part in raw_class_name.split('-'))  # 'GoogleTextToSpeech'
+            # Fix: Convert snake_case to PascalCase
+            raw_class_name = module_name.split('.')[-1]  # 'google_text_to_speech'
+            class_name = ''.join(part.capitalize() for part in raw_class_name.split('_'))  # 'GoogleTextToSpeech'
 
             module_class = getattr(module_lib, class_name)
 
@@ -79,6 +79,18 @@ class ModuleManager:
                 del self.modules[module_name]
                 print(f"Module '{module_name}' has been disabled.")
 
+    def return_first(func):
+        def wrapper(self, data):
+            for module in self.modules.values():
+                print(f"Trying module: {module.__class__.__name__}")
+                method = getattr(module, func.__name__, None)
+                if method:
+                    result = method(data)
+                    if result is not None:
+                        return result
+            return None
+        return wrapper
+
     def with_ownership(func):
         def wrapper(self, data):
             return self._process_with_ownership(data, func.__name__)
@@ -89,8 +101,8 @@ class ModuleManager:
     def process_history(self, history: list) -> list:
         pass
 
-    @with_ownership
-    def llm_request(self, messages: list) -> str:
+    @return_first
+    def llm_request(self, messages: list) -> str | None:
         pass
 
     @with_ownership

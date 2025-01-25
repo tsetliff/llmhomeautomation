@@ -1,7 +1,5 @@
 #!/usr/bin/bash
 
-echo "Got this far!"
-
 # Check if the virtual environment is activated
 if [[ -z "$VIRTUAL_ENV" ]]; then
     echo "Activating virtual environment..."

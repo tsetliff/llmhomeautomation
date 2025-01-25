@@ -28,6 +28,9 @@ class Module:
     def process_command_examples(self, command_examples: list) -> list:
         return command_examples
 
+    def llm_request(self, messages: list, model: str = "gpt-4o") -> str | None:
+        return None
+
     def process_response(self, response: dict) -> dict:
         return response
 
