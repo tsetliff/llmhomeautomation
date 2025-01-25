@@ -63,7 +63,7 @@ class Listen():
             device_info = sd.query_devices(record_device, 'input')
             sample_rate = int(device_info['default_samplerate'])
 
-            print(f"Listening with sample ratre of {sample_rate}... Press Ctrl+C to stop.")
+            print(f"Listening with sample rate of {sample_rate}... Press Ctrl+C to stop.")
             rec = vosk.KaldiRecognizer(model, sample_rate)
             try:
                 while True:

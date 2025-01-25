@@ -8,7 +8,7 @@ class Espeak(Module):
         super().__init__()
 
     def owns(self) -> list:
-        return ["speaking"]
+        return ["speak"]
 
     def process_command_examples(self, command_examples: list) -> list:
         command_examples.append(f"""You may ask to clarify the request or answer in text format using this format:
@@ -23,4 +23,5 @@ class Espeak(Module):
         return commands
 
     def say(self, text: str):
-        subprocess.run(['espeak-ng', '-d', self.playback_device, text])
+        subprocess.run(['espeak-ng', '-w', '/tmp/output.wav', text])
+        subprocess.run(['aplay', '-D', self.playback_device, '/tmp/output.wav'])

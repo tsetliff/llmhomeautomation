@@ -1,9 +1,9 @@
 {
   "context": true,
   "home": true,
-  "hue": true,
-  "time": true,
+  "command.hue": true,
+  "command.time": true,
   "persona.arnold": false,
-  "google-text-to-speech": true,
-  "espeak": true
+  "speak.espeak": true,
+  "speak.google-text-to-speech": true
 }

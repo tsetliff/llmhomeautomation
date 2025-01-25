@@ -1,17 +1,28 @@
-from llmhomeautomation.modules.module import Module
-from google.cloud import texttospeech
-import subprocess
+import json
 import os
+import queue
+import sounddevice as sd
+import sys
+import time
+import vosk
+
+from dotenv import load_dotenv
+# Must load before modules that directly access the environment
+load_dotenv()
+
+from llmhomeautomation.modules.module import Module
+
+from ...get_command import GetCommand
 
 # Add the personality to tell the system that it does home automation.
-class GoogleTextToSpeech(Module):
+class Vosk(Module):
     def __init__(self):
         self.playback_device = os.getenv("PLAYBACK_DEVICE")
         self.client = texttospeech.TextToSpeechClient()
         super().__init__()
 
     def owns(self) -> list:
-        return ["speaking"]
+        return ["listening"]
 
     def process_command_examples(self, command_examples: list) -> list:
         command_examples.append(f"""You may ask to clarify the request or answer in text format using this format:

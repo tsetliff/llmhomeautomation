@@ -13,7 +13,6 @@ class GetCommand:
         if request is None:
             return None
 
-
         status = {}
         status = ModuleManager().process_status(status)
 

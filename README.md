@@ -12,3 +12,6 @@ Installation
 * Check out repo from git into a directory on the server.
 * Make sure setup.sh is executable chmod 700 setup.sh
 * Run setup.sh
+
+Setup to build with Aider
+* https://aider.chat/docs/install.html

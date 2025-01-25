@@ -8,3 +8,4 @@ sounddevice
 tiktoken
 vosk
 websockets
+aider-install

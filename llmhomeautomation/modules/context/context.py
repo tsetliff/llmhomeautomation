@@ -8,8 +8,9 @@ class Context(Module):
         super().__init__()
 
     def process_whoami(self, whoami: list) -> list:
-        home_string = f"""The user is unable to see the previous entries, the last one provided is there most recent request. I'm sending our previous interactions, they are your history."""
-        whoami.append(home_string)
+        if self.history:
+            home_string = f"""The user is unable to see the previous entries, the last one provided is there most recent request. I'm sending our previous interactions, they are your history."""
+            whoami.append(home_string)
         return whoami
 
     def process_request(self, request: dict) -> dict:

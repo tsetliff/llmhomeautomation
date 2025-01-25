@@ -147,11 +147,11 @@ else
   echo "TIMEZONE is already set in $ENV_FILE with a value $TIMEZONE."
 fi
 
-# Check if OPENAI_KEY exists in the .env file and has a value
-OPENAI_KEY=$(grep -E '^OPENAI_KEY=' "$ENV_FILE" | cut -d '=' -f2)
+# Check if OPENAI_API_KEY exists in the .env file and has a value
+OPENAI_API_KEY=$(grep -E '^OPENAI_API_KEY=' "$ENV_FILE" | cut -d '=' -f2)
 
-if [ -z "$OPENAI_KEY" ]; then
-  # Prompt the user for the OPENAI_KEY value
+if [ -z "$OPENAI_API_KEY" ]; then
+  # Prompt the user for the OPENAI_API_KEY value
   read -p "Enter your OpenAI API key: " USER_KEY
 
   # Ensure the input is not empty
@@ -160,16 +160,16 @@ if [ -z "$OPENAI_KEY" ]; then
     exit 1
   fi
 
-  # If OPENAI_KEY exists as a blank line, replace it; otherwise, append it
-  if grep -q '^OPENAI_KEY=' "$ENV_FILE"; then
-    sed -i "s|^OPENAI_KEY=.*|OPENAI_KEY=$USER_KEY|" "$ENV_FILE"
+  # If OPENAI_API_KEY exists as a blank line, replace it; otherwise, append it
+  if grep -q '^OPENAI_API_KEY=' "$ENV_FILE"; then
+    sed -i "s|^OPENAI_API_KEY=.*|OPENAI_API_KEY=$USER_KEY|" "$ENV_FILE"
   else
-    echo "OPENAI_KEY=$USER_KEY" >> "$ENV_FILE"
+    echo "OPENAI_API_KEY=$USER_KEY" >> "$ENV_FILE"
   fi
 
   echo "OpenAI API key saved to $ENV_FILE."
 else
-  echo "OPENAI_KEY is already set in $ENV_FILE with a value."
+  echo "OPENAI_API_KEY is already set in $ENV_FILE with a value."
 fi
 
 # Check if VOSK_MODEL is already set in .env
@@ -350,6 +350,9 @@ for CONF_FILE in "$SOURCE_DIR"/*.conf; do
     echo "No .conf files found in $SOURCE_DIR"
   fi
 done
+
+# Aider is always available
+aider-install
 
 # Reload Supervisor to apply any configuration changes
 sudo systemctl restart supervisor

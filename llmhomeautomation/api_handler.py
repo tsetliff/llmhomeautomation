@@ -12,7 +12,7 @@ class APIHandler:
         Initialize the API handler with the API key and cache directory.
         :param cache_dir: Directory where cached responses are stored.
         """
-        openai_key = os.getenv("OPENAI_KEY")
+        openai_key = os.getenv("OPENAI_API_KEY")
         if not openai_key:
             raise ValueError(f"Configuration value for OPENAI_KEY is not set or empty in your .env file.")
 
