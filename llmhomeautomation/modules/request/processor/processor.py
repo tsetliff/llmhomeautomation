@@ -18,9 +18,17 @@ class Processor:
                     message = await websocket.recv()
                     print(f"Received: {message}")
                     request = json.loads(message)
-                    commands = self.get_command_list(request)
-                    if commands:
-                        ModuleManager().process_commands(commands)
+                    if request.get("type") == "request":
+                        commands = self.get_command_list(request)
+                        if commands:
+                            location = request.get("location")
+                            for command in commands:
+                                if not "location" in command:
+                                    command["location"] = location
+                                if not "role" in command:
+                                    command["role"] = "assistant"
+                            ModuleManager().process_commands(commands)
+
             except KeyboardInterrupt:
                 print("WebSocket listener stopped.")
 

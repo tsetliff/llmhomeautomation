@@ -1,6 +1,21 @@
 #!/bin/bash
 set -e
 
+# Check for passwordless sudo access
+if ! sudo -n true 2>/dev/null; then
+  echo "Error: Passwordless sudo access is required for this user."
+  exit 1
+fi
+
+
+# Ensure the user is in the audio group
+if ! groups | grep -q "\baudio\b"; then
+  echo "Adding $(whoami) to the audio group..."
+  sudo usermod -aG audio $(whoami)
+  echo "You need to log out and log back in for the changes to take effect."
+  exit 1
+fi
+
 # Path to the .env file
 ENV_FILE=".env"
 DATA_DIR="./data"

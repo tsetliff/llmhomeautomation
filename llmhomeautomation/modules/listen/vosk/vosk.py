@@ -9,6 +9,7 @@ import sys
 import time
 import vosk
 import asyncio
+import socket
 import websockets
 
 from llmhomeautomation.modules.module import Module
@@ -32,7 +33,10 @@ class Vosk(Module):
 
     async def send_request(self, message):
         async with websockets.connect("ws://localhost:8765") as websocket:
-            request = json.dumps({"role": "user", "type": "request", "location": "", "message": message})
+            user = os.getlogin()
+            hostname = socket.gethostname()
+            location = f"{user}@{hostname}@audio"
+            request = json.dumps({"role": "user", "type": "request", "location": location, "message": message})
             await websocket.send(request)
 
     def listen(self):

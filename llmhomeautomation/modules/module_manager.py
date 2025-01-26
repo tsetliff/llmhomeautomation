@@ -37,20 +37,17 @@ class ModuleManager:
 
     def _load_module(self, module_name):
         """Dynamically load a single module by its name."""
-        try:
-            module_path = f"llmhomeautomation.modules.{module_name}.{module_name.split('.')[-1]}"
-            module_lib = importlib.import_module(module_path)
+        module_path = f"llmhomeautomation.modules.{module_name}.{module_name.split('.')[-1]}"
+        module_lib = importlib.import_module(module_path)
 
-            # Fix: Convert snake_case to PascalCase
-            raw_class_name = module_name.split('.')[-1]  # 'google_text_to_speech'
-            class_name = ''.join(part.capitalize() for part in raw_class_name.split('_'))  # 'GoogleTextToSpeech'
+        # Fix: Convert snake_case to PascalCase
+        raw_class_name = module_name.split('.')[-1]  # 'google_text_to_speech'
+        class_name = ''.join(part.capitalize() for part in raw_class_name.split('_'))  # 'GoogleTextToSpeech'
 
-            module_class = getattr(module_lib, class_name)
+        module_class = getattr(module_lib, class_name)
 
-            if issubclass(module_class, Module):
-                self.modules[module_name] = module_class()
-        except (ImportError, AttributeError) as e:
-            print(f"Failed to load {module_name}: {e}")
+        if issubclass(module_class, Module):
+            self.modules[module_name] = module_class()
 
     def enable_module(self, module_name):
         """Enable a module in memory and the JSON config."""

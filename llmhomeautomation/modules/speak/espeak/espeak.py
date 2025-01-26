@@ -12,13 +12,13 @@ class Espeak(Module):
 
     def process_command_examples(self, command_examples: list) -> list:
         command_examples.append(f"""You may ask to clarify the request or answer in text format using this format:
-[{{"response": "Concise answer to the question."}}]""")
+[{{"say": "Concise answer to the question."}}]""")
         return command_examples
 
     def process_commands(self, commands: list) -> list:
         for command in commands:
-            if "response" in command:
-                self.say(command["response"])  # Process the response
+            if "say" in command:
+                self.say(command["say"])  # Process the say
 
         return commands
 

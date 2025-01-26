@@ -6,6 +6,7 @@
   "system.reboot": true,
   "persona.arnold": false,
   "llm.open_ai_llm": true,
+  "speak.broadcast": true,
   "speak.espeak": false,
   "speak.google_text_to_speech": true
 }

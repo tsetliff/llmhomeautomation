@@ -1,5 +1,7 @@
 import asyncio
 import json
+import os
+import socket
 import readline
 import websockets
 
@@ -8,7 +10,11 @@ async def send_message():
     try:
         while True:
             message = input("Enter your message: ").strip()
-            request = json.dumps({"role": "user", "type": "request", "location": "", "message": message})
+            user = os.getlogin()
+            hostname = socket.gethostname()
+            pid = os.getpid()
+            location = f"{user}@{hostname}@{pid}"
+            request = json.dumps({"role": "user", "type": "request", "location": location, "message": message})
             async with websockets.connect(uri) as websocket:
                 await websocket.send(request)
                 print(f"Sent: {request}")
