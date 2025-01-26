@@ -34,24 +34,48 @@ class Hue(Module):
     # The state of the system
     def process_status(self, status: dict) -> dict:
         # curl -X PUT -d '{"on": true}' http://192.168.1.100/api/your_generated_username/lights/1/state
-        #url = f"http://{self.bridge_ip_address}/api/{self.bridge_api_key}/lights"
-        #response = requests.get(url)
-        #response.raise_for_status()  # Raise an error for bad responses
+        url_root = f"http://{self.bridge_ip_address}/api/{self.bridge_api_key}/"
+        lights = self.reduce_lights(self.get_url(f"{url_root}lights"))
+        groups = self.reduce_groups(self.get_url(f"{url_root}groups"))
 
-        #houseState = response.json()
-        #print(json.dumps(houseState, indent=4, sort_keys=True))
-        #sys.exit()
-        #response.raise_for_status()
+        status.setdefault('hue', {})
+        status['hue']['lights'] = lights
+        status['hue']['groups'] = groups
+        print(json.dumps(status))
         return status
 
-    def process_command_examples(self, command_examples: list) -> list:
-        # Home automation command to change the state of the house
-        # [{{"Location": "Device": {{ "setting": "value"}}}}]
-        # You may add additional commands to the array like this:
-        # [{{"Location": "Device": {{ "setting": "value"}}}}, {{"Location": "Device": {{ "setting": "value"}}}}]
-        # You may also use the response command to confirm the change is made:
-        # [{{"Location": "Device": {{ "setting": "value"}}}},{{"response": "Concise answer to the question."}}]
-        return command_examples
+    def get_url(self, url: str) -> dict:
+        print(f"Making a call to url: {url}")
+        response = requests.get(url)
+        response.raise_for_status()  # Raise an error for bad responses
+        return response.json()
+
+
+    def reduce_lights(self, lights: dict) -> dict:
+        """
+        Reduces the lights to a dictionary keyed by the light ID with specific attributes.
+        """
+        reduced_lights = {}
+        for light_id, light_info in lights.items():
+            reduced_lights[light_id] = {
+                "name": light_info.get("name"),
+                "on": light_info.get("state", {}).get("on"),
+                "bri": light_info.get("state", {}).get("bri"),
+                "sat": light_info.get("state", {}).get("sat"),
+                "hue": light_info.get("state", {}).get("hue"),
+            }
+        return reduced_lights
+
+    def reduce_groups(self, groups: dict) -> dict:
+        """
+        Reduces the groups to a dictionary array keyed by the name of the group and a list of lights.
+        """
+        reduced_groups = {}
+        for group_id, group_info in groups.items():
+            group_name = group_info.get("name")
+            lights = group_info.get("lights", [])
+            reduced_groups[group_name] = lights
+        return reduced_groups
 
     def discover_hue_bridge(self):
         url = "https://discovery.meethue.com/"
