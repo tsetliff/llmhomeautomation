@@ -7,7 +7,7 @@ import re
 from llmhomeautomation.modules.module import Module
 
 class OpenAiLlm(Module):
-    def __init__(self, cache_dir: str = "api_cache"):
+    def __init__(self, cache_dir: str = "data/api_cache"):
         super().__init__()
         self.client = openai
         self.cache_dir = cache_dir

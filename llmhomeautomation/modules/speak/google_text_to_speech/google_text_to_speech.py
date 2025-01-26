@@ -2,10 +2,14 @@ from llmhomeautomation.modules.module import Module
 from google.cloud import texttospeech
 import subprocess
 import os
+import re
 
 # Add the personality to tell the system that it does home automation.
 class GoogleTextToSpeech(Module):
-    def __init__(self):
+    def __init__(self, cache_dir: str = "data/google_text_to_speech_cache"):
+        self.cache_dir = cache_dir
+        os.makedirs(self.cache_dir, exist_ok=True)  # Ensure the cache directory exists
+
         self.playback_device = os.getenv("PLAYBACK_DEVICE")
         self.client = texttospeech.TextToSpeechClient()
         super().__init__()
@@ -27,34 +31,56 @@ class GoogleTextToSpeech(Module):
         return commands
 
     def say(self, text: str):
-        # Prevent sending a book to google synthesis
-        text = text[:200]
+        import hashlib
+        import time
 
-        print("Saying:" + text)
-        input_text = texttospeech.SynthesisInput(text=text)
+        # Clean up old cached files
+        current_time = time.time()
+        one_month_ago = current_time - (30 * 24 * 60 * 60)  # 30 days ago
+        for filename in os.listdir(self.cache_dir):
+            file_path = os.path.join(self.cache_dir, filename)
+            if os.path.isfile(file_path):
+                file_mod_time = os.path.getmtime(file_path)
+                if file_mod_time < one_month_ago:
+                    os.remove(file_path)
+                    print(f"Deleted old cache file: {file_path}")
 
-        voice = texttospeech.VoiceSelectionParams(
-            language_code="en-US",  # Language and accent
-            # https://cloud.google.com/text-to-speech/docs/voices
-            # name="en-US-Wavenet-D",  # Wavenet for high-quality voices
-            name="en-US-Standard-D",
-            ssml_gender=texttospeech.SsmlVoiceGender.MALE  # Gender: MALE, FEMALE, or NEUTRAL
-        )
+        # Split text by periods, commas, and new lines
+        segments = [segment.strip() for segment in re.split(r'[.,\n]', text) if segment.strip()]
 
-        audio_config = texttospeech.AudioConfig(
-            audio_encoding=texttospeech.AudioEncoding.LINEAR16  # Audio format: MP3, LINEAR16, OGG_OPUS
-        )
+        for segment in segments:
+            # Generate a hash for the segment
+            segment_hash = hashlib.md5(segment.encode()).hexdigest()
+            output_file = os.path.join(self.cache_dir, f"{segment_hash}.wav")
 
-        response = self.client.synthesize_speech(
-            input=input_text,
-            voice=voice,
-            audio_config=audio_config
-        )
+            # Check if the file already exists
+            if not os.path.exists(output_file):
+                print(f"Recording: {segment}")
+                input_text = texttospeech.SynthesisInput(text=segment)
 
-        output_file = "/tmp/output.wav"
+                voice = texttospeech.VoiceSelectionParams(
+                    language_code="en-US",
+                    name="en-US-Standard-D",
+                    ssml_gender=texttospeech.SsmlVoiceGender.MALE
+                )
 
-        with open(output_file, "wb") as out:
-            out.write(response.audio_content)
-            print(f"Audio content written to {output_file}")
+                audio_config = texttospeech.AudioConfig(
+                    audio_encoding=texttospeech.AudioEncoding.LINEAR16
+                )
 
-        subprocess.run(['aplay', '-D', self.playback_device, '/tmp/output.wav'])
+                response = self.client.synthesize_speech(
+                    input=input_text,
+                    voice=voice,
+                    audio_config=audio_config
+                )
+
+                with open(output_file, "wb") as out:
+                    out.write(response.audio_content)
+                    print(f"Audio content written to {output_file}")
+            else:
+                print(f"Using Cached Segment: {segment}")
+                # Update the modification time of the cached file
+                os.utime(output_file, None)
+
+            # Play the audio file
+            subprocess.run(['aplay', '-D', self.playback_device, output_file])

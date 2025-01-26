@@ -12,7 +12,7 @@ class Processor:
         self.uri = uri
 
     async def process_messages(self):
-        async with websockets.connect(self.uri, ping_interval=20, ping_timeout=20) as websocket:
+        async with websockets.connect(self.uri, ping_interval=60, ping_timeout=60) as websocket:
             try:
                 while True:
                     message = await websocket.recv()
